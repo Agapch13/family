@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Инсарский район</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Инсарский район</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+   
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'linyev-kordon',
+        title: 'Парк культуры и отдыха имени Максима Горького',
+        region: 'г. Инсар, Советская, 55',
+        description: 'Парк культуры и отдыха — это место для отдыха и развлечений. Занимает просторную территорию с разнообразными зонами: аллеями для прогулок, зелеными насаждениями, детскими площадками, спортивными площадками и зонами для отдыха.Это место привлекательно для семей, молодежи и всех, кто хочет провести время на свежем воздухе, насладиться природой, культурными мероприятиями или просто отдохнуть от городской суеты.',
+        mainImage: 'Инсарский район/парк 1.png',
+        gallery: [
+          'Инсарский район/парк 1.png',
+          'Инсарский район/парк 2.png'
+        ]
+      },
+      {
+        id: 'rodnik-chasovnya',
+        title: 'Инсарский Свято-Ольгинский женский монастырь',
+        region: 'г. Инсар, ул. Гагарина',
+        description: 'На живописных просторах древней обители раскинулся величественный монастырь, чье архитектурное воплощение отражает богатство и духовность этого священного места. Среди его построек особенно выделяется храм в неорусском стиле, являющийся настоящим украшением всей территории. Для туристов здесь открываются живописные виды, возможность познакомиться с историей и культурой монастыря, насладиться спокойной атмосферой и духовным умиротворением. Внутри комплекса можно посетить хозяйственные помещения, жилые корпуса, трапезную, а также прогуляться по саду или набрать святой воды из источника. Экскурсии проводятся с опытными гидами, предлагаются фотосессии и возможности для тихого отдыха на природе.',
+        mainImage: 'Инсарский район/Инсарский Свято-Ольгинский женский монастырь 1.jpg',
+        gallery: [
+          'Инсарский район/Инсарский Свято-Ольгинский женский монастырь 1.jpg',
+          'Инсарский район/Инсарский Свято-Ольгинский женский монастырь 2.jpg'
+        ]
+      },
+      {
+        id: 'central-square',
+        title: 'Ледовый дворец',
+        region: 'г. Инсар, ул. Московская, 93',
+        description: 'Ледовый дворец – это современная спортивная арена, которая является центром зимних развлечений для всей семьи. Здесь можно насладиться катанием на коньках, поучаствовать в хоккейных матчах или просто погреться в уютной атмосфере. Комплекс оснащен всем необходимым для комфортного отдыха и занятий спортом, а также проводит различные культурные и спортивные мероприятия. Идеальное место для тех, кто любит активный отдых и хочет провести время интересно и с пользой.',
+        mainImage: 'Инсарский район/ледовый.png',
+        gallery: [
+          'Инсарский район/ледовый.png'
+        ]
+      },
+      {
+        id: 'museum-house',
+        title: 'ООО «Ксенон»',
+        region: 'г. Инсар, ул. Советская, 68',
+        description: 'ООО «Ксенон» - один из ведущих разработчиков и производителей световых приборов в России. Компания ведет собственные разработки светильников для промышленного, общественного и уличного освещения. За счёт профессионального подхода к производству и современным технологиям, доступны проекты разного масштаба и сложности. Надежность, экономичность, а также оптимальное соотношение цены и качества, - вот что является преимуществом световых приборов ООО «Ксенон». Компания имеет налаженную технологию производства, высокий производственно-инженерный потенциал, квалифицированные кадры, развитую дистрибьюторскую сеть во всех регионах России и СНГ.',
+        mainImage: 'Инсарский район/инсар ксенон 1.jpg',
+        gallery: [
+          'Инсарский район/инсар ксенон 1.jpg',
+          'Инсарский район/инсар ксенон 2.jpg',
+          'Инсарский район/инсар ксенон 3.jpg',
+          'Инсарский район/инсар ксенон 4.jpg'
+        ]
+      },
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+// ссылка "На главную" (можно заменить реальной URL)
+homeLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  alert('Замените ссылку на главную страницу в вашем проекте.');
+});
+</script></body>
+
+</html>
+
+

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Кадошкинский район</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Кадошкинский район</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+   
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'linyev-kordon',
+        title: 'Тепличный комплекс «Мир цветов»',
+        region: 'р. п. Кадошкино, ул. Гражданская, 47',
+        description: 'Кадошкинские розы — бренд, известный за пределами Мордовии. Ежедневно к реализации здесь готовят примерно 120-150 тысяч роз, которые продаются в каждом втором субъекте страны. По данным на 2024 год, общий объем производства – 45 миллионов цветов в год! Тепличный комплекс постоянно расширяется. На сегодняшний день он раскинулся на территории в 21 гектар, еще 3 гектара — в процессе строительства. Объемы производства позволяют занимать ведущие позиции на российском рынке, сейчас каждая седьмая роза в стране — кадошкинская.',
+        mainImage: 'Кадошкинский район/мир цветов 1.jpg',
+        gallery: [
+          'Кадошкинский район/мир цветов 1.jpg',
+          'Кадошкинский район/мир цветов 2.png',
+          'Кадошкинский район/мир цветов 3.jpg',
+          'Кадошкинский район/мир цветов 4.jpeg'
+        ]
+      },
+      {
+        id: 'rodnik-chasovnya',
+        title: 'Краеведческий музей им. А.Б. Наумова',
+        region: 'с. Паево, ул. Школьная, 20',
+        description: 'Краеведческий музей Паёво – это уникальный национальный музей, который погружает посетителей в историю и культуру мордовского народа, а также рассказывает о жизни и быте жителей села Паёво. Музей представляет собой богатую коллекцию предметов старины, домашних вещей, национального костюма, этнографических экспонатов и произведений искусства.Посетители смогут ознакомиться с традиционными ремеслами, художественными промыслами и народными обычаями, а также увидеть экспонаты, отражающие исторические события и военное прошлое региона. Особое внимание уделяется сохранению и популяризации национальной культуры, что делает музей интересным не только для любителей истории, но и для тех, кто хочет глубже понять самобытность мордовского народа.В музее проводятся экскурсии, мастер-классы по народным ремеслам, а также тематические выставки и культурные мероприятия. Это отличное место для семейных прогулок, образовательных экскурсий и знакомства с традициями региона. Посещение музея подарит вам возможность не только узнать о прошлом, но и почувствовать дух родной земли.',
+        mainImage: 'Кадошкинский район/Краеведческий музей им. А.Б. Наумова 1.jpg',
+        gallery: [
+          'Кадошкинский район/Краеведческий музей им. А.Б. Наумова 1.jpg',
+          'Кадошкинский район/Краеведческий музей им. А.Б. Наумова 2.jpg'
+        ]
+      },
+      {
+        id: 'central-square',
+        title: 'Водный аттракцион под открытым небом',
+        region: 'Кадошкинский район, территория «Лесная», д. 2 (рядом с. Адашево)',
+        description: 'Первый водный аттракцион под открытым небом. С 12 июля в «Лесной Слободе» начал работу надувной водный комплекс размером 50×40 метров.Наполняемость аттракциона: - горки разных уровней,- батуты, - полоса препятствий,- зона отдыха для всей семьи. Отличное место для летнего отдыха с детьми, друзьями или даже в одиночку, чтобы просто сменить обстановку и освежиться.',
+        mainImage: 'Кадошкинский район/вода.jpg',
+        gallery: [
+          'Кадошкинский район/вода.jpg'
+        ]
+      },
+      {
+        id: 'museum-house',
+        title: 'ООО "Изолайн"',
+        region: 'с. Паёво, ул. Школьная, 30',
+        description: 'Производственная компания ООО "Изолайн" начала работать на рынке строительных материалов в 2007 году. За прошедшие годы наша компания заработала репутацию надёжного производителя и поставщика теплоизоляционных материалов. Основным направлением деятельности компании является производство теплоизоляции на основе вспененного полиэтилена, а также, ветро-влагозащитных и пароизоляционных плёнок из нетканых и тканых материалов. Производство оснащено оборудованием для полного цикла производства, что позволяет устанавливать выгодную для партнёров стоимость нашей продукции. Команда профессионалов, просторные складские помещения, собственный грузовой автопарк делают нас гибкими и удобными для сотрудничества. Мы держим стандарт качества и выполняем заказы в нужный клиенту срок.Наше производство позволяет ламинировать и дублировать производимые нами материалы, что позволяет не только расширить ассортимент продукции, но и предложить потребителям различные решения по теплоизоляции. Возможность выбора материалов и взаимозаменяемость, лёгкость в использовании, делает нашу продукцию удобной и выгодной, популярной у потребителей. Также, мы можем выполнить Ваш заказ в требуемых параметрах по толщине, ширине и длине намотки, что является для нас обычной практикой. Мы подстраиваемся под запросы клиентов, но без ущерба качеству и срокам. Вся производимая продукция строго сертифицируется, соответствует техническим условиям и принятым стандартам.',
+        mainImage: 'Кадошкинский район/кадошкино изолайн 1.jpg',
+        gallery: [
+          'Кадошкинский район/кадошкино изолайн 1.jpg'
+        ]
+      },
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+// ссылка "На главную" (можно заменить реальной URL)
+homeLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  alert('Замените ссылку на главную страницу в вашем проекте.');
+});
+</script></body>
+
+</html>
+
+

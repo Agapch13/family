@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Природные памятники — копия с новым контентом</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Саранск</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'rzjavitin',
+        title: 'Ботанический сад им. В.Н. Ржавитина',
+        region: 'г.Саранск, рп. Луховка',
+        description: 'Ботанический сад имени В. Н. Ржавитина при биологическом факультете Мордовского государственного университета им. Огарева расположен в трех километрах от центра Саранска, на правом берегу реки Инсар в районе рабочего поселка Луховка.Сад назван в честь ботаника, профессора МГУ им. Огарева, Владимира Николаевича Ржавитина, который в 1960 г. собрал на базе плодово-ягодного сада несколько коллекций местной флоры.Сегодня на 35,1 га площади ботанического сада собраны растения из разных регионов земного шара. В коллекционном фонде Ботанического сада 1756 видов, сортов растений. Здесь произрастает 44 вида редких и исчезающих представителей флоры, из которых 19 включены в Красную книгу России.В ботаническом саду проводятся фотосессии, что делает это место еще более популярным не только у местных жителей, но и у туристов. Возможно и проведение договорных экскурсий. Средняя продолжительность — 2 часа.Перед входом в сад расположен стенд с правилами посещения и картой зеленой зоны. На карте обозначен экспериментальный участок, дендропарковая зона, участок дикорастущих плодовых, питомники древесных, розарий, коллекция тополей и зона региональной дендрофлоры. Также на территории есть пруд и небольшое озеро.Ботанический сад в Саранске работает с мая по сентябрь с 08:00 до 20:00, в октябре с 08:00 до 18:00. Понедельник — выходной.Парк открыт для посещений в период активного цветения растений. В остальное время (с ноября по апрель) доступ на территорию открыт только специалистам и студентам биологического факультета университета, занимающимся изучением и наблюдением за флорой, представленной в саду.',
+        mainImage: 'саранск/саранск сад 1.jpg',
+        gallery: [
+          'саранск/саранск сад 2.jpg',
+          'саранск/саранск сад 3.jpg',
+          'саранск/саранск сад 4.jpg',
+          'саранск/саранск сад 5.jpg',
+          'саранск/саранск сад 6.jpg'
+        ]
+      },
+      {
+        id: 'verevka_park',
+        title: 'Верёвочный парк',
+        region: 'г. Саранск, парк Пролетарского района',
+        description: 'Веревочный парк — это популярный вид активного отдыха и развлечений для местных жителей и туристов всех возрастов. Парк представляет собой специально оборудованные площадки, расположенные преимущественно среди деревьев или искусственных конструкций, оснащенные различными элементами препятствий и аттракционов на высоте над землей.Состоит из шести маршрутов, четыре из них для детей 6-14 лет (ростом не ниже 115 см), два для посетителей от 14 и старше (не ниже 140 см).Перед стартом посетителям проводят инструктаж и выдают необходимые средства защиты. Также для безопасности используется страховка. Самая высокая точка аттракциона – 8 м. В канатном парке каждый сможет почувствовать себя скалолазом Посещение веревочного парка позволяет не только весело провести время, но и ощутить радость преодоления собственных границ и испытаний природы.',
+        mainImage: 'саранск/саранск парк верёвка 2.jpg',
+        gallery: [
+          'саранск/саранск парк верёвка 3.jpeg',
+          'саранск/саранск парк верёвка 4.webp',
+          'саранск/саранск парк верёвка 5.webp',
+          'саранск/саранск парк верёвка 6.webp'
+        ]
+      },
+      {
+        id: 'smotrovaya',
+        title: 'Смотровая площадка МГУ им. Н. П. Огарёва',
+        region: 'г. Саранск, ул. Большевистская д. 68',
+        description: 'Смотровая площадка МГУ им. Н. П. Огарёва находится в главном корпусе университета, который считается самым высоким зданием в Саранске (высота от основания до шпиля — 90 метров). Площадка была оборудована в июле 2017 года на 17-м этаже здания. С площадки открывается панорамный вид на Саранск. Можно увидеть достопримечательности города, храмы, стадион «Мордовия Арена» и «небесную линию города». На смотровой площадке регулярно проходят выставки, творческие вечера и концерты классической музыки. Открыты бесплатные посещения для участников Великой Отечественной войны и специальной военной операции, детей до 7 лет, многодетных семей, детей-сирот и неработающих инвалидов 1 и 2 групп (при предъявлении документов).',
+        mainImage: 'саранск/смотровая4.jpg',
+        gallery: [
+          'саранск/смотровая1.jpg',
+          'саранск/смотровая2.jpg',
+          'саранск/смотровая3.jpg'
+        ]
+      },
+      {
+        id: 'gonchar',
+        title: 'Мастер-класс в гончарной мастерской',
+        region: ['ул. Маринина 12: Гончарная школа «Колокол»',
+        'ул. Красноармейская 26: Гончарная мастерская «Дари тепло»',
+        'ул. Ульянова 6: Гончарная студия «ТилиТилиТесто»'],
+        description: 'На мастер-классе в гончарной мастерской предлагают научиться делать керамические изделия, в том числе посуду ручной работы, показывают, как правильно обрабатывать материал и оформлять его. Гончарная мастерская также организует: семейные мастер-классы, детские дни рождения и другие праздничные мероприятия, корпоративные мероприятия.',
+        mainImage: 'саранск/гончар7.webp',
+        gallery: [
+          'саранск/гончар2.webp',
+          'саранск/гончар3.webp',
+          'саранск/гончар1.webp',
+          'саранск/гончар4.webp',
+          'саранск/гончар6.webp',
+          'саранск/гончар5.webp'
+    
+        ]
+      }
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+// ссылка "На главную" (можно заменить реальной URL)
+homeLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  alert('Замените ссылку на главную страницу в вашем проекте.');
+});
+</script></body>
+
+</html>
+
+

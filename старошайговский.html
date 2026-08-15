@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Старошайговский район</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Старошайговский район</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'sivin',
+        title: 'Река Сивинь',
+        region: 'Старошайговский район',
+        description: 'Река Сивинь – это одна из живописных природных жемчужин Мордовии, которая очаровывает своей уединенной атмосферой и кристально чистой водой. Ее берега усеяны зеленью, а тихое течение создает ощущение спокойствия и гармонии. Это идеальное место для тех, кто ищет отдых на природе, уединения и возможности насладиться красотой местных пейзажей. Здесь можно устроить пикник, прогуляться вдоль воды или просто посидеть в тени деревьев, слушая шепот воды',
+        mainImage: 'старошайговский/река Сивинь 2.jpg',
+        gallery: [
+          'старошайговский/река Сивинь 2.jpg',
+          'старошайговский/река Сивинь 1.jpg']
+      },
+      {
+        id: 'selo',
+        title: 'Село Старая Теризморга',
+        region: 'с. Старая Теризморга, Старошайговский район',
+        description: 'Старая Теризморга – село, расположенное на берегу р. Сивини. Его возраст приближается к 500 годам. В XVI столетии первые поселившиеся здесь народы занимались земледелием и пчеловодством. К началу XX в. население Старой Теризморги возросло до 3 тыс. человек.Сейчас это культурно-просветительский центр, где бережно хранятся старинные традиции, обычаи и промысли. Жители села до сих пор носят традиционные костюмы мордвы, поют народные песни, занимаются рукоделием. В Центре национальной культуры действуют учебные программы для детей по вышиванию и бисероплетению. А взрослые могут посетить кружки хорового пения. Также в селе находится музей этнографии «Крестьянская изба». Внутри построек воссоздан старинный быт и интерьер. Еще одно приятное дополнение к программе – возможность отведать национальные блюда Мордовии.',
+        mainImage: 'старошайговский/Село Старая Теризморга 2.jpg',
+        gallery: [
+          'старошайговский/Село Старая Теризморга 1.jpg',
+          'старошайговский/Село Старая Теризморга 2.jpg',
+          'старошайговский/Село Старая Теризморга 3.jpg',
+          'старошайговский/i.jpg'
+        ]
+      },
+      {
+        id: 'otrada',
+        title: 'База отдыха «Отрада»',
+        region: 'посёлок Ягодная Поляна, ул. Лесная, 1',
+        description: 'База отдыха «Отрада» идеально подходит для спортивных туристов благодаря своему уникальному расположению и разнообразию предлагаемых активностей. Расположенная вдали от городской суеты, среди живописных природных ландшафтов, база создает идеальные условия для восстановления сил и укрепления здоровья. Спортивные туристы смогут попробовать свои силы в водных видах спорта, рыбалку и плавание. К услугам гостей комфортабельные номера различных категорий, просторные беседки для приготовления пищи на свежем воздухе и развитая инфраструктура для организации спортивного снаряжения и инвентаря. База отдыха «Отрада» становится идеальным выбором для тех, кто стремится совместить активный отдых с оздоровительными процедурами и полноценным восстановлением энергии',
+        mainImage: 'старошайговский/18.jpg',
+        gallery: [
+          'старошайговский/18.jpg',
+          'старошайговский/l-f8705930c8440f4c90908da7edb57436.jpg',
+          'старошайговский/3417803.jpg',
+          'старошайговский/старошайгово спорт.png',
+          'старошайговский/старошайгово спорт 1.png',
+          'старошайговский/старошайгово спорт 2.png',
+          'старошайговский/старошайгово спорт 3.PNG',
+          'старошайговский/старошайгово спорт 4.png'
+        ]
+      },
+      {
+        id: 'agro',
+        title: 'ООО "Агрофирма "Новотроицкая"',
+        region: 'Республика Мордовия, р-н Старошайговский, с. Новотроицкое',
+        description: 'Предприятие основано 5 марта 2004 года. Производит хлеб, молоко и мясо – самые важные продукты питания для всей страны.На полях: выращивают зерновые и кормовые культуры: пшеницу, ячмень, рожь, кукурузу и многолетние травы.На фермах: специализируются на разведении крупного рогатого скота молочного направления.Гордость агрофирмы – это голштино-фризская порода коров. Она отличается высокой продуктивностью: одна корова может давать от 22 до 27 литров молока в день. Агрофирма использует метод чистопородного разведения животных – является племенным репродуктором.Компания работает на самом современном сельскохозяйственном оборудовании: более 40 единиц крупной техники: тракторов импортного и отечественного производства, прицепной инвентарь последних модификаций.',        mainImage: 'старошайговский/старошайгово новотроицк 1.jpg',
+        gallery: [
+          'старошайговский/старошайгово новотроицк 1.jpg',
+          'старошайговский/старошайгово новотроицк 2.jpg',
+          'старошайговский/2712-9.jpg',
+          'старошайговский/DJI_0531.jpg',
+          'старошайговский/DJI_0574.jpg'
+        ]
+      },
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+</script></body>
+
+</html>
+
+

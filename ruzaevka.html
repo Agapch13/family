@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Природные памятники — копия с новым контентом</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Рузаевский район</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'suz_vodoem',
+        title: 'Пляж «Акватория» Сузгарьевский водоём',
+        region: 'Рузаевский район, с. Сузгарье',
+        description: 'Пляж «Акватория» на Сузгарьевском водоеме — это популярное место отдыха местных жителей и туристов, ищущих комфорт и приятное времяпрепровождение у воды. Расположен он в живописной природной зоне, что делает его привлекательным для семей, компаний и любителей природы. На территории водоёма есть комфортные зоны отдыха, уютное кафе и спортивные площадки.  Для активного отдыха и водных прогулок, любой желающий может арендовать различный водный транспорт: лодки, катамараны, каяки, сапборды.',
+        mainImage: 'рузаевский район/Пляж «Акватория» Сузгарьевский водоём 4.jpg',
+        gallery: [
+          'рузаевский район/Пляж «Акватория» Сузгарьевский водоём 1.jpg',
+          'рузаевский район/Пляж «Акватория» Сузгарьевский водоём 2.jpg',
+          'рузаевский район/Пляж «Акватория» Сузгарьевский водоём 3.jpg'
+        ]
+      },
+      {
+        id: 'alleay_mashin',
+        title: 'Аллея Машиностроителей',
+        region: 'г. Рузаевка, посёлок Химмаш',
+        description: 'Аллея Машиностроителей, открывшаяся в сентябре 2021 года, стала одним из любимых мест отдыха и развлечений для жителей и гостей города. Созданная в рамках программы «Формирование комфортной городской среды» национального проекта «Жилье и городская среда», эта аллея объединяет два пространства, предназначенных для разных видов отдыха.Первая зона — зона тихого отдыха, расположенная между домами 5а и 6 по улице Менделеева, идеально подходит для прогулок, чтения книг на лавочках и спокойного отдыха с маленькими детьми. Здесь вы сможете насладиться тишиной и природной красотой, отдохнуть в уютной атмосфере.Вторая зона предназначена для активных людей и семей с детьми. Она насыщена уличными тренажерами и включает 28 игровых комплексов, рассчитанных на детей от трёх до 14 лет. Это отличное место для игр, активных занятий и проведения времени на свежем воздухе.Особое очарование аллеи придает её ночное освещение — сотни огней и подсветок создают сказочную атмосферу, делая прогулки по аллее особенно приятными и романтичными в вечернее время. Посетите аллею Машиностроителей, чтобы насладиться гармонией природы, активным отдыхом и уютной атмосферой, которая оставит у вас яркие впечатления и желание возвращаться сюда снова.',
+        mainImage: 'рузаевский район/Аллея Машиностроителей 1.jpg',
+        gallery:  [ 
+          'рузаевский район/Аллея Машиностроителей 2.jpg',
+          'рузаевский район/Аллея Машиностроителей 3.jpg'
+        ]
+        
+      },
+      {
+        id: 'parovoz',
+        title: 'Памятник паровозу ',
+        region: 'Привокзальная площадь г. Рузаевка',
+        description: 'Памятник паровозу, установленный в 2011 году на Привокзальной площади Рузаевки, является визитной карточкой города железнодорожников. Паровоз прозван «Лебедянкой» (в честь конструктора Льва Лебединского), официальное название – «Победа». Установленный на постаменте паровоз серии Л-2345 – дань уважения ветеранам-железнодорожникам и образец для почитания подрастающему поколению. Вес монумента –130 тонн, а длина – 26 метров. Памятник стоит на круглом постаменте со стрелками, указывающими четыре основных направления – Москва, Самара, Пенза, Саранск.  На площадке с «нулевым километром» указана географическая долгота и широта города.',
+        mainImage: 'рузаевский район/Памятник паровозу 1.jpg',
+        gallery: [
+          'рузаевский район/Памятник паровозу 2.jpg',
+          'рузаевский район/Памятник паровозу 3.jpg',
+          'рузаевский район/Памятник паровозу 4.jpg'
+          
+        ]
+      },
+      {
+        id: 'delfin',
+        title: 'Бассейн «Дельфин»',
+        region: 'г. Рузаевка, ул. Маяковского 89Б',
+        description: 'Бассейн «Дельфин» - современное и популярное место для отдыха и развлечений. Для туристов это отличное место, чтобы расслабиться, поправить здоровье и провести время с семьей или друзьями. Комплекс расположен недалеко от центра города, вблизи от отелей и зон отдыха, что делает его удобным для отдыхающего.',
+        mainImage: 'рузаевский район/Бассейн «Дельфин» 1.jpg',
+        gallery: ['рузаевский район/Бассейн «Дельфин» 1.jpg'
+
+        ]
+      },
+      {
+        id: 'zavod_himmash',
+        title: 'Рузаевский завод химического машиностроения',
+        region: 'г. Рузаевка, ул. Титова 16 стр. 1',
+        description: 'Рузхиммаш – флагманское предприятие компании РМ Рейл, ведущего производителя грузового подвижного состава в России. Линейка продукции включает более 100 сертифицированных и освоенных в серийном производстве моделей вагонов, среди которых цистерны, хопперы, полувагоны, крытые вагоны, платформы, думпкары и другие. Это самая широкая номенклатура среди вагоностроительных предприятий России и СНГ. Мощности предприятия позволяют выпускать до 12 000 вагонов в год.',
+        mainImage: 'рузаевский район/химмаш1.webp',
+        gallery: [
+          'рузаевский район/химмаш.jpg',
+          'рузаевский район/химмаш2.webp'
+
+        ]
+      }
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+// ссылка "На главную" (можно заменить реальной URL)
+homeLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  alert('Замените ссылку на главную страницу в вашем проекте.');
+});
+</script></body>
+
+</html>
+
+

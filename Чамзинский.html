@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Чамзинский район</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Чамзинский район</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+   
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'linyev-kordon',
+        title: 'Дуб-долгожитель',
+        region: 'Парк отдыха в посёлке Чамзинка',
+        description: 'Представляет собой дуб черешчатый достигший 25-метровой высоты и 2-х метров в окружности. Уникальность дерева состоит в том, что его ствол на высоте пяти метров имеет развилку, в которой растет рябина. Это удивительное природное явление. В 1994 году Дуб признан памятников природы регионального значения как природный объект, имеющий культурно-историческое значение.',
+        mainImage: 'Чамзинский район/Дуб-долгожитель_в_Чамзинке 1.jpg',
+        gallery: [
+          'Чамзинский район/Дуб-долгожитель_в_Чамзинке 1.jpg',
+          'Чамзинский район/Дуб-долгожитель_в_Чамзинке 2.png'
+        ]
+      },
+      {
+        id: 'rodnik-chasovnya',
+        title: 'Источник «Святой»',
+        region: 'У села Альза, около дороги Чамзинка-Кульмино',
+        description: 'Источник имеет свою легенду, согласно которой, в 1946 году в его водах явился образ святого Николая Чудотворца. Однако у источника есть ещё одно название «Гремячий». Как гласит другое поверье, воды источника «загремели» после того, как молодая женщина окунула в родник детское бельё. В настоящее время к «Святому» источнику приходят за чистейшей водой и покаянием.',
+        mainImage: 'Чамзинский район/Источник святой 1.jpg',
+        gallery: [
+          'Чамзинский район/Источник святой 1.jpg',
+          'Чамзинский район/Источник святой 2.jpg',
+          'Чамзинский район/Источник святой 3.jpg',
+          'Чамзинский район/Источник святой 4.jpg'
+        ]
+      },
+      {
+        id: 'central-square',
+        title: 'Каменная церковь Николая Чудотворца',
+        region: 'Чамзинский район, с. Сорлиней',
+        description: 'В селе Сорлини в 1856 году была построена выполненная в оригинальном архитектурном стиле, сочетающем элементы древнерусского зодчества и стиля барокко. Здание Никольской церкви признано памятником архитектуры.',
+        mainImage: 'Чамзинский район/Каменная церковь Николая Чудотворца 1.jpg',
+        gallery: [
+          'Чамзинский район/Каменная церковь Николая Чудотворца 1.jpg',
+          'Чамзинский район/Каменная церковь Николая Чудотворца 2.jpg',
+          'Чамзинский район/Каменная церковь Николая Чудотворца 3.jpg'
+        ]
+      },
+      {
+        id: 'museum-house',
+        title: 'Маколовская церковь иконы Казанской Божьей матери',
+        region: 'Чамзинский район, с. Маколово ',
+        description: 'Освещенная в 1910 году обитель сохранилась в своем первозданном виде. Строительство храма осуществлялось на средства прихожан и меценатов, некоторые из которых нашли вечный покой на территории церкви. Прекрасно сохранившаяся Маколовская церковь архитектуры девятнадцатого века включена в список памятников архитектуры и находится под охраной государство. Примечательным фактом является то, что службы в храме не прекращались даже в период яростной борьбы с религией. Удивительным образом в Церкви Казанской божьей матери сохранился иконостас, выносное распятии, полученное в дар от солдат Первой мировой войны, а также икона Божией Матери «Избавительница», написанная на Афоне в 1891 году. Сегодня в чудесный храм приезжают паломники со всей республики, здесь венчаются и предпочитают крестить детей.',
+        mainImage: 'Чамзинский район/Маколовская церковь иконы Казанской Божьей матери 1.jpg',
+        gallery: [
+          'Чамзинский район/Маколовская церковь иконы Казанской Божьей матери 1.jpg',
+          'Чамзинский район/Маколовская церковь иконы Казанской Божьей матери 2.jpg'
+        ]
+      },
+      {
+        id: 'ice-arena',
+        title: 'Чамзинский историко-краеведческий музей',
+        region: 'п. г. т. Чамзинка, площадь Победы 1',
+        description: 'Музей основан 12 августа 1992 года. Фонд музея насчитывает более 4500 экспозиций, рассказывающих о развитии района, а также истории древних православных храмов. В музее функционируют пять залов: «Как жили наши предки», «Чамзинка в годы революции», «Поклонимся великим тем годам», «Современная история Чамзинского района», выставочный зал. Режим работы: понедельник, вторник, среда, четверг, пятница, суббота Чамзинский историко-краеведческий музей с 09:00 до 18:00, касса − с 09:00 до 17:00, воскресенье − выходной.',
+        mainImage: 'Чамзинский район/Чамзинский историко-краеведческий музей 1.jpg',
+        gallery: [
+          'Чамзинский район/Чамзинский историко-краеведческий музей 1.jpg',
+          'Чамзинский район/Чамзинский историко-краеведческий музей 2.jpg',
+          'Чамзинский район/Чамзинский историко-краеведческий музей 3.jpg',
+          'Чамзинский район/Чамзинский историко-краеведческий музей 4.jpg',
+          'Чамзинский район/Чамзинский историко-краеведческий музей 5.jpg',
+          'Чамзинский район/Чамзинский историко-краеведческий музей 6.jpg'
+        ]
+      },
+      {
+        id: 'ice-arena',
+        title: 'Эколого-туристический маршрут «338 метров над уровнем Мордовии»',
+        region: 'от Сайгушевского пруда до вершины Лысой горы',
+        description: 'Точка старта - живописный Сайгушский пруд, финиш - вершины Лысой горы - места, где высота достигает 338 метров над уровнем моря. Именно здесь, с этой точки, когда-то началась история цементного завода, ставшего неотъемлемой частью поселка и его развития.По пути установлены навигационные указатели, тематические лавки с традиционными мордовскими узорами, карты, арт-объекты и даже зона буккросинга, чтобы каждый мог отдохнуть и, возможно, найти для себя новую книгу. Завершает маршрут арт-объект − большие крылья, установленные на вершине горы. Здесь открывается захватывающий панорамный вид на Мордовию − вид, который, по словам местных жителей, «не может оставить равнодушным».',
+        mainImage: 'Чамзинский район/Эколого-туристический маршрут 1.jpg',
+        gallery: [
+          'Чамзинский район/Эколого-туристический маршрут 1.jpg',
+          'Чамзинский район/Эколого-туристический маршрут 2.jpg',
+          'Чамзинский район/Эколого-туристический маршрут 3.jpg'
+        ]
+      },
+      {
+        id: 'ice-arena',
+        title: 'АО «Мордовцемент»',
+        region: 'Чамзинский район, п. Комсомольский, ул. Промышленная 1',
+        description: 'АО «Мордовцемент» − крупнейшее цементное предприятие в России, расположенное в посёлке Чамзинка Республики Мордовия. Основанное более полувека назад, предприятие занимает лидирующие позиции на российском рынке цемента благодаря масштабам производства и качеству продукции. Завод оснащён современными технологиями и оборудованием, позволяющими производить миллионы тонн цемента ежегодно. Основной продукцией являются цементы марок M400 и M500, которые используются при строительстве дорог, мостов, жилых домов и промышленных сооружений. Заводом реализованы программы по снижению выбросов вредных веществ и минимизации воздействия на окружающую среду. АО «Мордовцемент» ведёт активную социальную политику, поддерживая инфраструктуру посёлка Чамзинка и привлекая инвестиции в регион. Завод стабильно развивается, увеличивая объёмы выпуска и улучшая производственные показатели, оставаясь важным элементом экономики Республики Мордовия и российским лидером в производстве строительного цемента.',
+        mainImage: 'Чамзинский район/Чамзинка мордов цемент 1.png',
+        gallery: [
+          'Чамзинский район/Чамзинка мордов цемент 1.png',
+          'Чамзинский район/Чамзинка мордов цемент 2.png',
+          'Чамзинский район/Чамзинка мордов цемент 3.png'
+        ]
+      }
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+// ссылка "На главную" (можно заменить реальной URL)
+homeLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  alert('Замените ссылку на главную страницу в вашем проекте.');
+});
+</script></body>
+
+</html>
+
+
