@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Лямбирский район</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Лямбирский район</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'tihonski',
+        title: 'Родник «Тихонский»',
+        region: 'с. Смольково, Лямбирский район',
+        description: 'Родник «Тихонский» – это уютное и живописное место для отдыха и духовного единения, расположенное в окружении природы. По периферии родника установлено надежное ограждение, защищающее источник и создающее чувство уюта и безопасности. Ведущая к роднику тропинка аккуратно спускается с окружающих лесных территорий, что делает путь к нему приятным и живописным. Перед родником расположена просторная, забетонированная площадка — здесь удобно расположиться, сделать фотографию или подготовиться к отдыху. На территории есть небольшой сруб, где можно укрыться в прохладную погоду или просто насладиться природой. Вблизи находится купальня, которая используется для омовения или водных процедур, а также крест с иконами, создающий атмосферу духовного спокойствия и умиротворения. Для отдыха и общения здесь установлены лавочки, на которых можно посидеть, поговорить или просто насладиться тишиной и природной красотой. Это место идеально подходит для тех, кто ищет гармонию, хочет наполниться энергетикой природы и почувствовать связь с духовностью. Обязательно посетите родник "Тихонский" — это не только источник живительной воды, но и место, где можно отдохнуть душой и телом, насладиться красотой природы и почувствовать внутренний покой.',
+        mainImage: 'Родник «Тихонский» 1.jpg',
+        gallery: [
+          'Родник «Тихонский» 1.jpg',
+            ]
+      },
+      {
+        id: 'rodnik-chasovnya',
+        title: 'Церковь Владимирской иконы Божией Матери',
+        region: 'Северная ул., 12А, село Берсеневка',
+        description: 'Церковь Владимирской иконы Божией Матери в селе Берсеневка Республики Мордовия – это исторический и архитектурный памятник, являющийся важным духовным центром региона. Построенная в традиционном русском стиле, церковь привлекает своей красотой и атмосферой спокойствия. Внутри вы можете полюбоваться иконами и богато украшенными интерьерами, созданными с любовью и мастерством. Обязательно стоит посетить церковь в праздничные дни, когда в ней проходят богослужения и праздничные службы. Также рядом расположены живописные места для прогулок и фотосессий. Посещение этой святыни оставит у вас тёплые воспоминания и даст возможность познакомиться с духовной культурой региона.',
+        mainImage: 'Церковь Владимирской иконы Божией Матери 1.jpg',
+        gallery: [
+          'Церковь Владимирской иконы Божией Матери 1.jpg',
+          'Церковь Владимирской иконы Божией Матери 2.jpg',
+          '687_0153178b.jpg'
+        ]
+      },
+      {
+        id: 'central-square',
+        title: 'Конно-каретный двор',
+        region: 'Лямбирский район, 3-ий км. Лямбирского шоссе',
+        description: '«Конно-каретный двор» – это уникальное место, созданное для тех, кто хочет познакомиться с миром лошадей, насладиться верховой ездой и погрузиться в атмосферу конного спорта и сельской жизни. Расположена территория в шаговой доступности, в 1-м км. от столицы Республики Мордовия города Саранска. База находится в непосредственной близости к смешанному лесу и живописному озеру, что делает её идеальным местом для тех, кто хочет сбежать от городской суеты и насладиться тишиной и красотой природы. На территории конно-каретного двора вас ждут современные манежи и выездковые площадки. Здесь можно научиться основам ухода за лошадьми, освоить технику верховой езды или просто провести время в компании грациозных животных, наслаждаясь контактом с природой. Для любителей сельской жизни и семей с детьми предусмотрены экскурсии и прогулки на лошадях по живописным маршрутам, а также возможность поучаствовать в фермерских работах — кормлении и уходе за лошадьми, что делает отдых не только увлекательным, но и познавательным. Конно-культурный двор — это место гармонии, красоты и приключений. Он идеально подходит для тех, кто хочет получить новые впечатления, укрепить связь с природой и просто прекрасно провести время в окружении лошадей и живописных пейзажей. Это отличная возможность для семей, любителей активного отдыха и ценителей сельской культуры!',
+        mainImage: 'Конно-каретный двор 3.jpg',
+        gallery: [
+          'Конно-каретный двор 3.jpg',
+          'Конно-каретный двор 1.jpg',
+          'Конно-каретный двор 2.jpg'
+        ]
+      },
+      {
+        id: 'museum-house',
+        title: 'АО Птицефабрика «Атемарская»',
+        region: 'село Атемар, ул. Центральная, 1А',
+        description: 'АО Птицефабрика «Атемарская», расположенная в Лямбирском районе Республики Мордовия, была запущена в производство в 1967 году и на сегодняшний день остается крупным сельскохозяйственным предприятием региона. Специализируясь на производстве высококачественной продукции птицеводства и животноводства, фабрика обеспечивает население региона свежими яйцами, мясом птицы и продукцией переработки мяса. Предприятие гордится своей современной технологической базой и высоким уровнем санитарии, обеспечивающими высокое качество выпускаемой продукции. Благодаря эффективному управлению и инновационным технологиям АО Птицефабрика «Атемарская» постоянно расширяет ассортимент продукции, удовлетворяя потребности рынка и потребителей в экологически чистых продуктах питания. Кроме основной деятельности по выращиванию кур-несушек и бройлеров, фабрике также занимается переработкой отходов сельского хозяйства и внедрением инновационных технологий по охране окружающей среды. Регулярно обновляемое поголовье птиц и модернизация производственных мощностей способствуют постоянному росту производительности фабрики и повышению качества конечной продукции. Продукция АО Птицефабрики «Атемарская» пользуется большим спросом как в Республике Мордовия, так и далеко за её пределами благодаря своему качеству и экологической чистоте. Таким образом, предприятие играет важную роль в обеспечении продовольственной безопасности региона и способствует развитию сельскохозяйственной индустрии страны.',
+        mainImage: 'лямбирь атемар 3.jpg',
+        gallery: [
+          'лямбирь атемар 3.jpg',
+          'лямбирь атемар 1.jpg',
+          'лямбирь атемар 2.jpg',
+          'XGl_ouzUwStSOW-nWtgx.jpg',
+          'WxyhBT5PZkF8N_N7khQXDXG2.jpg',
+          'F4l5DNlA_ce4PSZFB.jpg',
+        ]
+      },
+      {
+        id: 'ice-arena',
+        title: 'Физкультурно-оздоровительный комплекс',
+        region: 'Лямбирский р-н, с Атемар, ул Центральная, д 81А',
+        description: 'Физкультурно-оздоровительный комплекс – это современное пространство для активного отдыха и поддержания здоровья, которое ждет туристов. В комплексе есть разнообразные залы и оборудование для занятий спортом, а также зоны для отдыха и восстановления. Здесь вы можете заняться фитнесом, посетить тренажерный зал или поиграть в командные игры. Посещение такого комплекса – отличный способ провести время с пользой, зарядиться энергией и насладиться комфортной обстановкой. Особенно подойдет для тех, кто любит активный отдых, заботится о здоровье или хочет просто хорошо провести время в приятной компании.',
+        mainImage: '36_big.jpg',
+        gallery: [
+          '36_big.jpg',
+          '50ee7fe3aba5f83c0febe7078e81f761.jpg',
+          'rt4tnu6ra5kuzyst0sgwud516sif434m.jpg'
+        ]
+      }
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+</script></body>
+
+</html>
+
+
