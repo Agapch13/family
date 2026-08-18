@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Ковылкинский район</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Пример сайта с похожим функционалом: карточки памятников, галерея, модальные окна." />
+  <style>
+    :root{
+      
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #2b6cb0;
+      --overlay: rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box}
+    html, body{margin:0;padding:0;height:100%}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: url('фон.png');
+          background-repeat: repeat-x ;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    /* Шапка-герой */
+.hero{
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: 
+              url('шапка2.png') center/cover no-repeat;
+}
+.hero h1{font-size: 38px; margin:0; padding:0 20px; text-shadow: 0 1px 2px rgba(0,0,0,.4)}
+.hero p{margin:8px 0 0; font-size: 16px; opacity:.95}
+/* Сетка карточек */
+.container{max-width:1100px;margin:40px auto;padding:0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{
+  background: #f5f7fb00;
+  
+  border-radius:12px;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  
+}
+.card:hover{ transform: translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08) }
+.card img{width:100%; height:150px; object-fit:cover; display:block}
+.card .info{padding:12px}
+.card .title{font-weight:700; font-size:16px; margin:0 0 6px}
+.card .region{color:var(--muted); font-size:14px}
+/* Попап-галерея (модальное окно) */
+.modal{position: fixed;inset: 0; background: var(--overlay); display:none; align-items:stretch; justify-content:center; padding:20px; z-index: 1000}
+.modal.active{ display:flex; }
+.modal-content{
+  width: min(1000px, 95%);
+  height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.slides{position:relative; background:#000}
+.slides .slide{ position:absolute; inset:0; display:none; }
+.slides .slide.active{ display:block; }
+.slides img{ width:100%; height:100%; object-fit:cover; }
+.nav{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:50%;
+       background:#fff; border:1px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav.prev{ left:12px; }
+.nav.next{ right:12px; }
+.close{ position:absolute; top:8px; right:8px; width:34px;height:34px; border-radius:6px;border:1px solid #ccc;background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.caption{ padding:14px 18px; font-size:15px; line-height:1.4; overflow:auto; }
+.section-right{ padding:18px; border-left:1px solid #eee; display:flex; flex-direction:column; gap:12px; }
+/* Заголовок внутри модального окна */
+.popup-title{ font-size:20px; font-weight:700; margin:0; }
+/* кнопка "назад на главную" на витрине (условно) */
+.home-link{ color:var(--accent); text-decoration:none; font-weight:600; }
+/* Адаптация под мобильные */
+@media (max-width: 900px){
+  .modal-content{ grid-template-columns: 1fr; height: calc(100vh - 40px); }
+  .section-right{ border-left:0; border-top:1px solid #eee; }
+  .slides{ height: 50vh; }
+  .caption{ height: auto; }
+}
+</style>
+</head>
+<body>  <header class="hero" aria-label="Шапка с описанием">
+    <div>
+      <h1 style="position: center;  ">Ковылкинский район</h1>
+
+      <p> <img src = "полоса2.png" style="width: 500px"></p>
+      <p><a href="index.html" style="text-decoration: none; position: center; ]">На главную </a> </p>
+    </div>
+  </header>  <main class="container" aria-label="Секция памятников">
+    <section class="grid" id="grid">
+      </section>
+</main>  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Галерея памятников">
+    <div class="modal-content">
+      <button class="close" id="modalClose" aria-label="Закрыть">
+        ×
+      </button>
+        <div class="slides" id="slides">
+    
+  </div>
+    <aside class="section-right" id="aside">
+    <h3 class="popup-title" id="popupTitle">Название памятника</h3>
+    <div id="popupRegion" style="font-weight:700; color:#333;"></div>
+    <div class="caption" id="popupDesc" style="color:#555; font-size:14px;">
+      Описание памятника будет здесь. Этот блок можно наполнить любым текстом.
+    </div>
+  </aside>
+</div>
+</div>  <script>
+    // Данные: названия и изображения — взяты из вашего файла
+    // Обновлено 5 monuments с точными названиями и текстами
+    const items = [
+      {
+        id: 'linyev-kordon',
+        title: 'Памятник природы «Линев кордон»',
+        region: 'Ковылкинский район',
+        description: 'Участок спелого соснового леса «Линев кордон» располагается в юго-восточной части г. Ковылкино и входит в состав его зелёной зоны. Этот лес — излюбленное место отдыха жителей г. Ковылкино. Здесь можно насладиться прогулками на свежем воздухе, провести время с семьёй и друзьями, поиграть на открытых площадках или просто отдохнуть в тени деревьев. В лесу растут разнообразные деревья и кустарники, а в некоторых местах проложены тропинки для пешеходных прогулок и велосипедных поездок. Это место славится своей спокойной атмосферой, природной красотой и возможностью сбежать от городской суеты, чтобы восстановить силы и насладиться природой.',
+        mainImage: 'Памятник природы «Линев кордон» 3.jpg',
+        gallery: [
+          'Памятник природы «Линев кордон» 3.jpg',
+          'Памятник природы «Линев кордон» 2.jpg',
+          'Памятник природы «Линев кордон» 1.jpg'
+        ]
+      },
+      {
+        id: 'rodnik-chasovnya',
+        title: 'Водный памятник природы регионального значения «Родник Часовня»',
+        region: 'Ковылкинский район',
+        description: '«Родник Часовня» в Ковылкинском районе — это один из известных природных источников, пользующихся популярностью у местных жителей и туристов. Родник обустроен во время создания санатория «Мокша». В настоящее время на территории памятника природы возведены небольшая деревянная часовня и купель, а источник покрыт навесом и выложен камнем.',
+        mainImage: 'часовня.jpg',
+        gallery: [
+          'часовня.jpg',
+        ]
+      },
+      {
+        id: 'central-square',
+        title: 'Центральная площадь города Ковылкино',
+        region: 'г. Ковылкино',
+        description: 'Уникальный архитектурный объект, который, по мнению некоторых авторов, не имеет аналогов в России. Площадь находится внутри городской застройки, к ней не ведёт ни одна автомобильная дорога, кроме дворовых проездов. В 2023 году площадь была благоустроена в рамках национального проекта «Жильё и городская среда». Главная идея проекта — «Большая река — связь времён», он повторяет русло реки Мокши.',
+        mainImage: 'Центральная площадь города Ковылкино 1.jpg',
+        gallery: [
+          'Центральная площадь города Ковылкино 1.jpg',
+          'Центральная площадь города Ковылкино 2.jpg',
+          'Центральная площадь города Ковылкино 3.jpg',
+          'Центральная площадь города Ковылкино 5.jpg',
+          'Центральная площадь города Ковылкино 6.jpg'
+        ]
+      },
+      {
+        id: 'museum-house',
+        title: 'Дом-музей Ф. С. Сычкова',
+        region: 'г. Ковылкино',
+        description: 'На территории города Ковылкино создан дом-музей Ф. С. Сычкова, который находится на берегу протекающей здесь реки Мокши. В музее находится коллекция полотен мастера и коллекция предметов декоративно-прикладного искусства. Также, есть экспозиция, которая знакомит с жизнью мастера и его творческим путем.',
+        mainImage: 'Дом-музей Ф. С. Сычкова 1.jpg',
+        gallery: [
+          'Дом-музей Ф. С. Сычкова 1.jpg',
+          'Дом-музей Ф. С. Сычкова 2.jpg',
+          'Дом-музей Ф. С. Сычкова 3.jpg'
+        ]
+      },
+      {
+        id: 'ice-arena',
+        title: 'Ледовая арена',
+        region: 'г. Ковылкино, Королёва, 2б',
+        description: 'Ледовый комплекс — это современное спортивное сооружение, созданное для поддержки и развития ледовых видов спорта, а также для популяризации активного образа жизни среди жителей города и региона. Он сочетает в себе функциональность, комфорт и современные технологии, что делает его привлекательным как для спортсменов, так и для любителей зимних видов спорта.',
+        mainImage: 'Ледовая арена 1.jpg',
+        gallery: [
+          'Ледовая арена 1.jpg',
+          'Ледовая арена 2.jpg',
+          'Ледовая арена 3.jpg',
+          'Ледовая арена 4.jpg',
+          'Ледовая арена 5.jpg'
+        ]
+      }
+    ];
+// Рендер карточек
+const grid = document.getElementById('grid');
+items.forEach((it) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', it.id);
+  card.innerHTML = `
+    <img src="${it.mainImage}" alt="${it.title}">
+    <div class="info">
+      <div class="title">${it.title}</div>
+      <div class="region">${it.region}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(it, 0));
+  grid.appendChild(card);
+});
+// Модалка и слайдер
+const modal = document.getElementById('modal');
+const slidesContainer = document.getElementById('slides');
+const popupTitle = document.getElementById('popupTitle');
+const popupRegion = document.getElementById('popupRegion');
+const popupDesc = document.getElementById('popupDesc');
+const modalClose = document.getElementById('modalClose');
+const homeLink = document.getElementById('homeLink');
+let currentIndex = 0;
+let slides = [];
+function openModal(item, startIndex) {
+  slidesContainer.innerHTML = '';
+  slides = item.gallery?.length ? item.gallery : [item.mainImage];
+  currentIndex = startIndex;
+  slides.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide' + (i === currentIndex ? ' active' : '');
+    s.innerHTML = `<img src="${src}" alt="${item.title} изображение ${i+1}">`;
+    slidesContainer.appendChild(s);
+  });
+  popupTitle.textContent = item.title;
+  popupRegion.textContent = item.region;
+  popupDesc.textContent = item.description;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function showSlide(index) {
+  const sEls = slidesContainer.querySelectorAll('.slide');
+  if (!sEls.length) return;
+  if (index < 0) index = sEls.length - 1;
+  if (index >= sEls.length) index = 0;
+  sEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  currentIndex = index;
+}
+// навигация по слайдам
+slidesContainer.addEventListener('click', (e) => {
+  const w = slidesContainer.clientWidth;
+  const x = e.clientX - slidesContainer.getBoundingClientRect().left;
+  if (x < w/2) showSlide(currentIndex - 1); else showSlide(currentIndex + 1);
+});
+// кнопки закрытия
+modalClose.addEventListener('click', closeModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+  if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+});
+</script></body>
+
+</html>
+
+
